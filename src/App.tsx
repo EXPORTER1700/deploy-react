@@ -9,6 +9,7 @@ function App() {
             <p>Большой текст 123</p>
             <p>API URL: {apiUrl}</p>
             <p>NODE ENV: {nodeEnv}</p>
+            <p>TEST</p>
         </div>
     )
 }
