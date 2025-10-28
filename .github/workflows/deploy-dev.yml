@@ -20,8 +20,8 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build \
-            --build-arg NODE_ENV=$NODE_ENV \
-            --build-arg API_URL=$API_URL \
+            --build-arg NODE_ENV=${{ env.NODE_ENV }} \
+            --build-arg API_URL=${{ env.API_URL }} \
             -t frontend \
             -f ./Dockerfile .
 
