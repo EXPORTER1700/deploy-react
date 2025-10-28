@@ -1,0 +1,73 @@
+name: Build and Deploy to Server
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: dev
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # -------------------------
+      # Build Docker Image
+      # -------------------------
+      - name: Build Docker Image
+        run: |
+          docker build \
+            --build-arg NODE_ENV=$NODE_ENV \
+            --build-arg API_URL=$API_URL \
+            -t frontend \
+            -f ./Dockerfile .
+
+      # -------------------------
+      # Create temporary container
+      # -------------------------
+      - name: Create temporary container
+        run: |
+          CONTAINER_ID=$(docker create frontend)
+          echo "CONTAINER_ID=$CONTAINER_ID" >> $GITHUB_ENV
+
+      # -------------------------
+      # Copy dist from container
+      # -------------------------
+      - name: Copy dist folder
+        run: |
+          docker cp $CONTAINER_ID:/dist ./dist
+          docker rm $CONTAINER_ID
+
+      # -------------------------
+      # Prepare SSH key
+      # -------------------------
+      - name: Create temporary SSH key file
+        run: |
+          echo "${{ secrets.SERVER_SSH_KEY }}" > /tmp/ssh_key
+          chmod 600 /tmp/ssh_key
+
+      # -------------------------
+      # Deploy to remote server
+      # -------------------------
+      - name: Deploy dist to server
+        run: |
+          ssh -i /tmp/ssh_key -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+            TARGET_DIR="${{ secrets.SERVER_PATH }}"
+            # Создаём папку, если нет
+            mkdir -p "$TARGET_DIR"
+            # Удаляем старое содержимое
+            rm -rf "$TARGET_DIR"/*
+            exit
+          EOF
+
+          # Копируем новый билд
+          scp -i /tmp/ssh_key -r ./dist/* ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.SERVER_PATH }}
+
+      # -------------------------
+      # Cleanup
+      # -------------------------
+      - name: Clean up SSH key
+        run: rm /tmp/ssh_key
