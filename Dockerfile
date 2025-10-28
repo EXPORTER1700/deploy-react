@@ -2,7 +2,6 @@
 FROM oven/bun:1.3 AS deps
 WORKDIR /app
 
-# Копируем манифест Bun
 COPY package.json bun.lock ./
 RUN bun install
 

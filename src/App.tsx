@@ -5,11 +5,11 @@ function App() {
     const nodeEnv = import.meta.env.VITE_NODE_ENV;
 
     return (
-        <>
+        <div style={{background: 'red', padding: '2rem'}}>
             <p>Большой текст 123</p>
             <p>API URL: {apiUrl}</p>
             <p>NODE ENV: {nodeEnv}</p>
-        </>
+        </div>
     )
 }
 

@@ -56,14 +56,11 @@ jobs:
         run: |
           ssh -i /tmp/ssh_key -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             TARGET_DIR="${{ secrets.SERVER_PATH }}"
-            # Создаём папку, если нет
             mkdir -p "$TARGET_DIR"
-            # Удаляем старое содержимое
             rm -rf "$TARGET_DIR"/*
             exit
           EOF
 
-          # Копируем новый билд
           scp -i /tmp/ssh_key -r ./dist/* ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.SERVER_PATH }}
 
       # -------------------------
