@@ -1,5 +1,5 @@
 # Stage 1: Install dependencies
-FROM jarredsumner/bun:1.8.5 AS deps
+FROM oven/bun:1.1.30 AS deps
 WORKDIR /app
 
 # Копируем манифест Bun
@@ -7,7 +7,7 @@ COPY package.json bun.lock ./
 RUN bun install
 
 # Stage 2: Build the project
-FROM jarredsumner/bun:1.8.5 AS builder
+FROM oven/bun:1.1.30 AS builder
 WORKDIR /app
 
 ARG NODE_ENV
@@ -19,7 +19,7 @@ ENV VITE_API_URL=$API_URL
 COPY . .
 COPY --from=deps /app/node_modules ./node_modules
 
-RUN bun build
+RUN bun run build
 
 # Stage 3: Extract dist
 FROM alpine:3.18 AS extractor
